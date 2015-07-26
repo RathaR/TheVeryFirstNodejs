@@ -54,7 +54,7 @@ request(main_page_link, function (error, response, html) {
 
                     if ((i + 1) % len == 0)
                     {
-                        console.log(one_person+'\n');
+                        //console.log(one_person+'\n');
                         arr.push(JSON.parse('{' + one_person.substr(0,one_person.length-1) + '}'));
                         one_person = '';
                     }
@@ -64,21 +64,26 @@ request(main_page_link, function (error, response, html) {
                     if ( cur_name == 'ЗНО')
                     {
                         var zno_name = cur_name;
+                        var separate_array='';
                         table_page$(this).children('nobr').contents().each(function(i,el){
                             var ch_el = table_page$(this);
                             var title_attr = ch_el.attr('title');
                             var zno_val = ch_el.text().substr(0, ch_el.text().length - 1);
-                            if ( title_attr !== undefined)
-                                one_person += one_person +'"' + zno_name + "." + title_attr +'" : ' + zno_val  + ','
+                            if ( title_attr !== undefined) {
+                                one_person = one_person + '"' + zno_name + "." + title_attr + '" : ' + zno_val + ',';
+                                separate_array = separate_array + '"' + title_attr + '" : ' + zno_val + ',';
+                            }
                         });
+                        console.log(separate_array.substr(0, separate_array.length - 1));
+                        one_person = one_person + '"' + zno_name + '" : { ' + separate_array.substr(0, separate_array.length - 1) + ' } ,';
                     }
                     else if (cur_name == 'Σ' || cur_name == 'С')
                     {
-                        one_person += one_person + '"' + table_head.get()[i % len]  + '" : '  +  table_page$(this).text() + ',';
+                        one_person = one_person + '"' + table_head.get()[i % len]  + '" : '  +  table_page$(this).text() + ',';
                     }
                     else if (cur_name != '#')
                     {
-                        one_person += one_person + '"' + table_head.get()[i % len]  + '" : "'  +  table_page$(this).text() + '",';
+                        one_person = one_person + '"' + table_head.get()[i % len]  + '" : "'  +  table_page$(this).text() + '",';
                     }
 
 
