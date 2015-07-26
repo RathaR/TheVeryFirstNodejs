@@ -1,0 +1,200 @@
+var MongoClient = require('mongodb').MongoClient
+    , format = require('util').format;
+var http = require("http");
+
+/*
+ *     MongoClient.connect('mongodb://127.0.0.1:27017/test', function(err, db) {
+ if(err) throw err;
+
+ var collection = db.collection('test_insert');
+ collection.insert({a:2}, function(err, docs) {
+ collection.count(function(err, count) {
+ console.log(format("count = %s", count));
+ db.close();
+ });
+ // Locate all the entries using find
+ collection.find().toArray(function(err, results) {
+ console.dir(results);
+ // Let's close the db
+ db.close();
+ });
+ });
+ });
+ * */
+
+var request = require('request');
+var cheerio = require('cheerio');
+
+//var main_page_link = 'http://vstup.info';
+var main_page_link = 'http://vstup.info/2015/282/i2015i282p253531.html#list';
+
+request(main_page_link, function (error, response, html) {
+    if (!error && response.statusCode == 200) {
+        var main_page$ = cheerio.load(html);
+        var table_page$ = main_page$;
+
+
+        table_page$('table').each(function (i, element) {
+        var table_id = table_page$(this).attr('id');
+        if (typeof table_id === typeof '' && table_id != 'shortstat' && table_id != 'legend') {
+
+                var table_head = table_page$('#' + table_id + ' thead tr th').map(function(i,el) {
+                    var out_string = table_page$(this).text() ;
+                    console.log(out_string);
+                    return out_string;
+                });
+
+                var len = table_head.length;
+                console.log(len);
+                var arr=[];
+                var one_person = '';
+
+                var table_body = table_page$('#' + table_id + ' tbody tr td').each(function(i,el){
+                    var cur = table_page$(this).text();
+
+                    if ((i + 1) % len == 0)
+                    {
+                        console.log(one_person+'\n');
+                        arr.push(JSON.parse('{' + one_person.substr(0,one_person.length-1) + '}'));
+                        one_person = '';
+                    }
+
+
+                    var cur_name = table_head.get()[i%len];
+                    if ( cur_name == 'ЗНО')
+                    {
+                        var zno_name = cur_name;
+                        table_page$(this).children('nobr').contents().each(function(i,el){
+                            var ch_el = table_page$(this);
+                            var title_attr = ch_el.attr('title');
+                            var zno_val = ch_el.text().substr(0, ch_el.text().length - 1);
+                            if ( title_attr !== undefined)
+                                one_person += one_person +'"' + zno_name + "." + title_attr +'" : ' + zno_val  + ','
+                        });
+                    }
+                    else if (cur_name == 'Σ' || cur_name == 'С')
+                    {
+                        one_person += one_person + '"' + table_head.get()[i % len]  + '" : '  +  table_page$(this).text() + ',';
+                    }
+                    else if (cur_name != '#')
+                    {
+                        one_person += one_person + '"' + table_head.get()[i % len]  + '" : "'  +  table_page$(this).text() + '",';
+                    }
+
+
+                });
+
+
+            console.log(arr);
+
+        }
+        })
+
+
+        
+        /*
+        var once_done = false;
+        main_page$('a').each(function (i, element) {
+            var spec_page_link = main_page$(this).attr('href');
+            if (typeof spec_page_link === typeof '' && spec_page_link.indexOf('/2015/i2015okr') > -1) {
+                if (false == once_done) {
+                    once_done = true;
+                    console.log('loading: ' + spec_page_link);
+
+                    request( main_page_link + spec_page_link, function (error, response, html) {
+                        if (!error && response.statusCode == 200) {
+                            var spec_page$ = cheerio.load(html);
+                            var spec_once_done = false;
+                            spec_page$('a').each(function (i, element) {
+                                var inst_page = spec_page$(this).attr('href');
+                                if (typeof inst_page === typeof '' && inst_page.indexOf('./i2015') > -1) {
+                                    if (false == spec_once_done) {
+                                        spec_once_done = true;
+                                        var full_inst_page_link = main_page_link + '/2015' + inst_page.substr(1);
+                                        console.log('loading: ' + full_inst_page_link);
+
+                                        request(full_inst_page_link, function (error, response, html) {
+                                            if (!error && response.statusCode == 200) {
+                                                var inst_page$ = cheerio.load(html);
+                                                var inst_once_done = false;
+                                                inst_page$('a').each(function (i, element) {
+                                                    var table_link = inst_page$(this).attr('href');
+
+                                                    if (typeof table_link === typeof '' && table_link.indexOf('i2015i') > -1) {
+                                                        if (false == inst_once_done) {
+                                                            inst_once_done = true;
+                                                            var table_link_full = main_page_link + '/2015' + table_link.substr(1);
+                                                            console.log('loading: ' + table_link_full);
+
+
+                                                            request(full_inst_page_link, function (error, response, html) {
+                                                                if (!error && response.statusCode == 200) {
+                                                                    var table_page$ = cheerio.load(html);
+                                                                    table_page$('span.tablesaw-cell-content').each(function (i, element) {
+                                                                        var table_cell = table_page$(this).text();
+                                                                        console.log( table_cell);
+
+                                                                    });
+                                                                }
+                                                            });
+
+
+
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
+
+
+                                    }
+
+
+                                }
+                            });
+                        }
+                    });
+
+                }
+
+            }
+
+        });
+        */
+
+    }
+});
+/*
+ var server = http.createServer(function (request, response) {
+
+
+ var options = {
+ hostname: 'www.vstup.info',
+ path: '/2015/174/i2015i174p212830.html#list',
+ method: 'GET',
+ headers: {
+ 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.130 Safari/537.36'
+ }
+ };
+
+ var req = http.get(options, function (res) {
+ console.log('STATUS: ' + res.statusCode);
+ console.log('HEADERS: ' + JSON.stringify(res.headers));
+ res.setEncoding('utf8');
+ res.on('data', function (chunk) {
+ response.write(chunk);
+ console.log('data');
+ });
+ res.on('end', function () {
+ console.log('end');
+ response.writeHead(200, {"Content-Type": "text/html"});
+ response.end();
+ })
+ });
+
+ });
+
+
+ server.listen(80);
+ console.log("Server is listening");
+ */

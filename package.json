@@ -1,0 +1,16 @@
+{
+  "name": "theveryfirstpackage",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "IvanVit",
+  "license": "ISC",
+  "dependencies": {
+    "jasmine": "^2.3.1",
+    "lodash": "^3.10.0",
+    "protractor": "^2.1.0"
+  }
+}
