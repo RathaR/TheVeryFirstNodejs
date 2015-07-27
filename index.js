@@ -128,7 +128,7 @@ request(main_page_link, function (error, response, html) {
             var spec_page_link = main_page$(this).attr('href');
             if (typeof spec_page_link === typeof '' && spec_page_link.indexOf('/2015/i2015okr') > -1) {
                 if (false == once_done) {
-                 //   once_done = true;
+                    once_done = true;
                     console.log('loading: ' + spec_page_link);
 
                     request( main_page_link + spec_page_link, function (error, response, html) {
@@ -139,7 +139,7 @@ request(main_page_link, function (error, response, html) {
                                 var inst_page = spec_page$(this).attr('href');
                                 if (typeof inst_page === typeof '' && inst_page.indexOf('./i2015') > -1) {
                                     if (2 > spec_once_done) {
-                                       // spec_once_done++;
+                                        spec_once_done++;
                                         var full_inst_page_link = main_page_link + '/2015' + inst_page.substr(1);
                                         console.log('loading: #'+ i + " " + full_inst_page_link);
 
@@ -154,7 +154,7 @@ request(main_page_link, function (error, response, html) {
 
                                                     if (typeof table_link === typeof '' && table_link.indexOf('i2015i') > -1) {
                                                         if (2 > inst_once_done) {
-                                                        //    inst_once_done++;
+                                                            inst_once_done++;
 
                                                             var table_link_full = main_page_link + '/2015' + table_link.substr(1);
                                                             console.log('loading:#' + i + " "  + table_link_full);
